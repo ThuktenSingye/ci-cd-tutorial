@@ -1,0 +1,37 @@
+# @format
+# Title of the workflow. Help to identify this pipeline in github action
+name: CI Pipeline to staging/production environment
+# on parameter determin the events that triggers your workflows.
+# when this workflow yaml filed is pushed to remote github repo, github action automatically registers the workflow using the configured triggers in the on field.
+# this trigger act as event listener that tell github when to execute the workflow.
+# below example, we set up pull_request as the value for on paramter and specify branch to monitor. Github  set up event listerner for pull request for those branch.
+# so github will trigger the workflow whenever a pull request is made to the main and staging branches.
+on:
+  pull_request:
+    branches:
+      - staging
+      - main
+
+# jobs define specific task that workflow will execute. each job is independent and run on separate VM.
+jobs:
+  test:
+    # specifies OS that job will run on
+    runs-on: ubuntu-latest
+    name: Setup, test, and build project
+    env:
+      PORT: 5001
+    # define individual action to execute within the jobs.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test application
+        run: npm test
+
+      - name: Build application
+        run: |
+          echo "Run command to build the application if present"
+          npm run build --if-present
